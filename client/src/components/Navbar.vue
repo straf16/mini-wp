@@ -13,7 +13,7 @@
 
     <template slot="end">
       <b-navbar-item tag="div">
-        <button class="button is-info is-inverted">
+        <button class="button is-info is-inverted" @click="go('articleForm')">
           <i class="far fa-edit"></i>&nbsp; Write
         </button>
       </b-navbar-item>
@@ -24,9 +24,17 @@
             <i class="fas fa-user-circle"></i>
           </div>
           <!-- </p> -->
-
-          <b-dropdown-item aria-role="listitem">Profile</b-dropdown-item>
-          <b-dropdown-item aria-role="listitem">Sign Out</b-dropdown-item>
+          <b-dropdown-item custom aria-role="menuitem">
+            Logged as
+            <b>Ahmad Fadilah</b>
+          </b-dropdown-item>
+          <hr class="dropdown-divider" aria-role="menuitem" />
+          <b-dropdown-item value="settings">
+            <b-icon icon="account"></b-icon>&nbsp;&nbsp;Profile
+          </b-dropdown-item>
+          <b-dropdown-item value="logout" aria-role="menuitem">
+            <b-icon icon="logout"></b-icon>&nbsp;&nbsp;Logout
+          </b-dropdown-item>
         </b-dropdown>
       </b-navbar-item>
     </template>
@@ -35,13 +43,16 @@
 
 <script>
 export default {
-  data() {
-    return {};
+  methods: {
+    go(page) {
+      // console.log("di navbar kirim", page);
+      this.$emit("go", page);
+    }
   }
 };
 </script>
 
-<style>
+<style scoped>
 .navbar {
   background-color: rgb(0, 72, 139) !important;
 }
