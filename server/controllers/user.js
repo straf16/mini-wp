@@ -1,15 +1,16 @@
-const User = require('../models/user')
+const { user } = require('../models')
 const { comparePassword } = require('../helpers/bcryptjs')
 const { generateToken } = require('../helpers/jwt')
 
 class UserController {
   static register(req, res, next) {
     const { name, email, password } = req.body
-    User.create({
-      name,
-      email,
-      password
-    })
+    user
+      .create({
+        name,
+        email,
+        password
+      })
       .then(result => {
         res.status(201).json(result)
       })
@@ -17,9 +18,10 @@ class UserController {
   }
   static login(req, res, next) {
     const { email, password } = req.body
-    User.findOne({
-      email
-    })
+    user
+      .findOne({
+        email
+      })
       .then(result => {
         if (result && comparePassword(password, result.password)) {
           const payload = {

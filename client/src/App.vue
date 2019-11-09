@@ -23,7 +23,7 @@
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import Content from "./components/Content";
-import CreateArticle from "./components/CreateArticle";
+import CreateArticle from "./views/CreateArticle";
 import axios from "../config/myaxios";
 
 export default {
@@ -51,7 +51,7 @@ export default {
       const loading = this.$buefy.loading.open();
       axios({
         method: "GET",
-        url: "/articles",
+        url: "/articles/my-articles",
         headers: {
           token:
             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZGMxNzUxNDIwOTZmMTE2NzYxZjY0MDciLCJuYW1lIjoiRmFkaWxhaCIsImVtYWlsIjoiZmFkaWxAbWFpbC5jb20iLCJpYXQiOjE1NzI5NjUyMTJ9.Jf3RYh5quLB9oJ-f-AbEEk9cTYN4m-EM7MpLv5rqvss"

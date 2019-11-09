@@ -1,6 +1,6 @@
 const { decodeToken } = require('../helpers/jwt')
 const User = require('../models/user')
-const Article = require('../models/article')
+const { article } = require('../models')
 
 module.exports = {
   authentication: function(req, res, next) {
@@ -25,7 +25,8 @@ module.exports = {
     }
   },
   articleAuthorization: function(req, res, next) {
-    Article.findById(req.params.id)
+    article
+      .findById(req.params.id)
       .then(result => {
         if (result && result.owner == req.loggedUser._id) {
           next()

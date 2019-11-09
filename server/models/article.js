@@ -6,7 +6,7 @@ const articleSchema = new Schema(
       type: String,
       required: [true, 'Title is required']
     },
-    desc: {
+    content: {
       type: String,
       required: [true, 'Desc is required']
     },
@@ -15,7 +15,7 @@ const articleSchema = new Schema(
         type: String
       }
     ],
-    imgUrl: {
+    featured_image: {
       type: String
     },
     owner: {

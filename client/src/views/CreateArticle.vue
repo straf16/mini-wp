@@ -61,13 +61,10 @@
 import axios from "../../config/myaxios";
 import Quill from "quill";
 import { quillEditor } from "vue-quill-editor";
-// import { ImageResize } from "quill-image-resize";
 import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 import "quill/dist/quill.bubble.css";
 
-// Register ImageResize module
-// Quill.register("modules/imageResize", ImageResize);
 
 const tagsArray = [
   "Angular",
@@ -94,9 +91,6 @@ export default {
       filteredTags: tagsArray,
       config: {
         modules: {
-          // ImageResize: {
-          //   modules: ["Resize", "DisplaySize", "Toolbar"]
-          // },
           toolbar: {
             container: [
               ["bold", "italic", "underline", "strike"], // toggled buttons

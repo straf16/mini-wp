@@ -1,21 +1,43 @@
-const Article = require('../models/article')
+const { article } = require('../models')
 
 class ArticleController {
   static create(req, res, next) {
-    const { title, desc, tags } = req.body
-    Article.create({
-      title,
-      desc,
-      tags,
-      owner: req.loggedUser._id
-    })
+    const { title, content, tags, featured_image } = req.body
+    article
+      .create({
+        title,
+        content,
+        tags,
+        featured_image,
+        owner: req.loggedUser._id
+      })
       .then(result => {
         res.status(201).json(result)
       })
       .catch(next)
   }
   static find(req, res, next) {
-    Article.find()
+    article
+      .find()
+      .sort({ createdAt: 'desc' })
+      .then(result => {
+        if (result) {
+          res.status(200).json(result)
+        } else {
+          next({
+            status: 404,
+            message: 'No Data'
+          })
+        }
+      })
+      .catch(next)
+  }
+  static findMyArticles(req, res, next) {
+    article
+      .find({
+        owner: req.loggedUser._id
+      })
+      .sort({ createdAt: 'desc' })
       .then(result => {
         if (result) {
           res.status(200).json(result)
@@ -29,9 +51,10 @@ class ArticleController {
       .catch(next)
   }
   static findOne(req, res, next) {
-    Article.findOne({
-      _id: req.params.id
-    })
+    article
+      .findOne({
+        _id: req.params.id
+      })
       .then(result => {
         if (result) {
           res.status(200).json(result)
@@ -45,33 +68,36 @@ class ArticleController {
       .catch(next)
   }
   static searchByTag(req, res, next) {
-    Article.find({
-      tags: new RegExp(`${req.query.keyword}`, 'gi')
-    })
+    article
+      .find({
+        tags: new RegExp(`${req.query.keyword}`, 'gi')
+      })
       .then(result => {
         res.status(200).json(result)
       })
       .catch(next)
   }
   static update(req, res, next) {
-    const { title, desc, tags } = req.body
-    Article.findOneAndUpdate(
-      {
-        _id: req.params.id
-      },
-      {
-        title,
-        desc,
-        tags
-      }
-    )
+    const { title, content, tags } = req.body
+    article
+      .findOneAndUpdate(
+        {
+          _id: req.params.id
+        },
+        {
+          title,
+          content,
+          tags
+        }
+      )
       .then(result => {
         res.status(200).json(result)
       })
       .catch(next)
   }
   static delete(req, res, next) {
-    Article.findByIdAndDelete(req.params.id)
+    article
+      .findByIdAndDelete(req.params.id)
       .then(result => {
         res.status(200).json(result)
       })
