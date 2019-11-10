@@ -9,10 +9,10 @@
       <div class="media-content" style="width: 70%;">
         <div class="content">
           <p style="width: 100%; margin: 0">
-            <strong>Ahmad Fadilah</strong>
+            <strong>{{name}}</strong>
           </p>
           <p id="desc">
-            <small>ahmadfadilah.wordpress.com</small>
+            <small>{{getWebName}}</small>
           </p>
         </div>
       </div>
@@ -41,10 +41,20 @@
 
 <script>
 export default {
+  name: "Sidebar",
+  props: {
+    name: String
+  },
   data() {
     return {
       isActive: true
     };
+  },
+  computed: {
+    getWebName() {
+      const webName = this.name.replace(/\s+/g, "").toLowerCase();
+      return webName + ".miniwp.com";
+    }
   }
 };
 </script>

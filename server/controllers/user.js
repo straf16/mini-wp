@@ -30,13 +30,48 @@ class UserController {
             email: result.email
           }
           const token = generateToken(payload)
-          res.status(200).json({ token })
+          res.status(200).json({
+            token,
+            email: result.email,
+            name: result.name
+          })
         } else {
           next({
             status: 403,
             message: 'Invalid email/password'
           })
         }
+      })
+      .catch(next)
+  }
+  static googleSignIn(req, res, next) {
+    user
+      .findOne({
+        email: req.decoded.email
+      })
+      .then(result => {
+        if (result) {
+          return result
+        } else {
+          return user.create({
+            name: req.decoded.name,
+            email: req.decoded.email,
+            password: process.env.DEFAULT_PASSWORD
+          })
+        }
+      })
+      .then(result => {
+        const payload = {
+          _id: result._id,
+          name: result.name,
+          email: result.email
+        }
+        const token = generateToken(payload)
+        res.status(200).json({
+          token,
+          email: result.email,
+          name: result.name
+        })
       })
       .catch(next)
   }

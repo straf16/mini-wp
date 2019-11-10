@@ -7,7 +7,8 @@
             <a @click="go('home')">Close</a>
           </div>
           <p class="navbar-item">
-            <i class="far fa-window-maximize"></i>&nbsp; Ahmad Fadilah
+            <i class="far fa-window-maximize"></i>
+            &nbsp; {{name}}
           </p>
         </div>
 
@@ -22,21 +23,33 @@
     </nav>
     <div class="container" style="margin-top: 30px;">
       <b-field>
-        <b-input v-model="title" size="is-large" placeholder="Title"></b-input>
+        <b-input v-model="title" size="is-large" required placeholder="Title"></b-input>
       </b-field>
-      <div class="custom-file" style="display: none;">
-        <input
-          ref="image"
-          @change="imageUpload($event)"
-          type="file"
-          class="custom-file-input"
-          id="imageUpload"
-          aria-describedby="imageUploadAddon"
-        />
-        <label class="custom-file-label" for="imageUpload">Choose file</label>
+      <div class="container" id="imagedrop">
+        <b-upload v-model="featured_image" multiple drag-drop>
+          <section class="section">
+            <div class="content has-text-centered">
+              <p>
+                <b-icon icon="upload" size="is-large"></b-icon>
+              </p>
+              <p>Drop your image here or click to upload</p>
+              <div class="tags">
+                <span v-if="featured_image != null" class="tag is-primary">
+                  {{featured_image[0].name}}
+                  <button
+                    class="delete is-small"
+                    type="button"
+                    @click="deleteDropFile(index)"
+                  ></button>
+                </span>
+              </div>
+            </div>
+          </section>
+        </b-upload>
       </div>
       <quill-editor
         v-model="content"
+        required
         :options="config"
         ref="myQuillEditor"
         @blur="onEditorBlur($event)"
@@ -44,14 +57,7 @@
         @ready="onEditorReady($event)"
       ></quill-editor>
       <b-field>
-        <b-taginput
-          v-model="tags"
-          :data="filteredTags"
-          autocomplete
-          icon="label"
-          placeholder="Add a tag"
-          @typing="getFilteredTags"
-        ></b-taginput>
+        <b-taginput v-model="tags" ellipsis icon="label" placeholder="Add a tag"></b-taginput>
       </b-field>
     </div>
   </div>
@@ -59,68 +65,39 @@
 
 <script>
 import axios from "../../config/myaxios";
-import Quill from "quill";
 import { quillEditor } from "vue-quill-editor";
 import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 import "quill/dist/quill.bubble.css";
 
-
-const tagsArray = [
-  "Angular",
-  "Angular 2",
-  "Aurelia",
-  "Backbone",
-  "Ember",
-  "jQuery",
-  "Meteor",
-  "Node.js",
-  "Polymer",
-  "React",
-  "RxJS",
-  "Vue.js"
-];
-
 export default {
+  name: "CreateArticle",
+  props: {
+    name: String
+  },
   data() {
     return {
       title: "",
       content: "",
       tags: [],
-      images: [],
-      filteredTags: tagsArray,
+      featured_image: null,
       config: {
         modules: {
           toolbar: {
             container: [
-              ["bold", "italic", "underline", "strike"], // toggled buttons
-              ["link", "blockquote", "code-block", "image"],
-
-              [{ header: 1 }, { header: 2 }], // custom button values
-              [{ list: "ordered" }, { list: "bullet" }],
-              [{ script: "sub" }, { script: "super" }], // superscript/subscript
-              [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
-              [{ direction: "rtl" }], // text direction
-
               [{ size: ["small", false, "large", "huge"] }], // custom dropdown
               [{ header: [1, 2, 3, 4, 5, 6, false] }],
 
-              [{ color: [] }, { background: [] }], // dropdown with defaults from theme
-              [{ font: [] }],
-              [{ align: [] }],
+              ["bold", "italic", "underline", "strike"], // toggled buttons
+              [{ list: "ordered" }, { list: "bullet" }],
 
-              ["clean"] // remove formatting button
-            ],
-            handlers: {
-              // handlers object will be merged with default handlers object
-              image: function(value) {
-                if (value) {
-                  document.querySelector("#imageUpload").click();
-                } else {
-                  this.quill.format("image", false);
-                }
-              }
-            }
+              ["link", "blockquote", "code-block"],
+              [{ align: [] }],
+              [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
+
+              [{ color: [] }, { background: [] }], // dropdown with defaults from theme
+              [{ font: [] }]
+            ]
           }
         },
         theme: "snow"
@@ -153,60 +130,41 @@ export default {
       this.content = html;
     },
     publishArticle() {
+      const loading = this.$buefy.loading.open();
+      const formData = new FormData();
+      formData.append("title", this.title);
+      formData.append("content", this.content);
+      formData.append("tags", this.tags);
+      formData.append("featured_image", this.featured_image[0]);
       axios({
         method: "POST",
         url: "/articles",
         headers: {
-          token:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZGMxNzUxNDIwOTZmMTE2NzYxZjY0MDciLCJuYW1lIjoiRmFkaWxhaCIsImVtYWlsIjoiZmFkaWxAbWFpbC5jb20iLCJpYXQiOjE1NzI5NjUyMTJ9.Jf3RYh5quLB9oJ-f-AbEEk9cTYN4m-EM7MpLv5rqvss"
+          token: localStorage.getItem("token")
         },
-        data: {
-          title: this.title,
-          desc: this.content,
-          tags: this.tags
-        }
+        data: formData
       })
         .then(({ data }) => {
           console.log(data);
           this.go("home");
           this.$buefy.notification.open({
             message: "Succesfully create article",
-            type: "is-success"
+            type: "is-success",
+            hasIcon: true
           });
         })
-        .catch(err => console.log(err));
+        .catch(err => {
+          console.log(err);
+          this.$buefy.notification.open({
+            message: "please upload a picture for article cover",
+            type: "is-danger",
+            hasIcon: true
+          });
+        })
+        .finally(() => loading.close());
     },
-    getFilteredTags(text) {
-      this.filteredTags = tagsArray.filter(option => {
-        return (
-          option
-            .toString()
-            .toLowerCase()
-            .indexOf(text.toLowerCase()) >= 0
-        );
-      });
-    },
-    imageUpload(e) {
-      if (e.target.files.length !== 0) {
-        let quill = this.editor;
-        let reader = new FileReader();
-        reader.readAsDataURL(e.target.files[0]);
-        let self = this;
-        reader.onloadend = function() {
-          let base64data = reader.result;
-          self.images.push(base64data);
-          console.log("ini base64data", base64data);
-
-          // Get cursor location
-          let length = quill.getSelection().index;
-
-          // Insert image at cursor location
-          quill.insertEmbed(length, "image", base64data);
-
-          // Set cursor to the end
-          quill.setSelection(length + 1);
-        };
-      }
+    deleteDropFile(index) {
+      this.featured_image.splice(index, 1);
     }
   }
 };
@@ -214,7 +172,16 @@ export default {
 
 <style>
 .ql-container {
-  min-height: 350px;
+  min-height: 200px;
+  margin-bottom: 10px;
+}
+.dropzone {
+  min-width: 85vw;
+}
+#imagedrop {
+  display: flex;
+  justify-content: center;
+  margin-top: 5px;
   margin-bottom: 10px;
 }
 </style>

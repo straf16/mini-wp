@@ -12,6 +12,14 @@ module.exports = {
         }
         res.status(400).json({ message })
         break
+      case 'MongoError':
+        if (err.code == 11000) {
+          message = ['Data already exist']
+          res.status(400).json({ message })
+        } else {
+          res.status(status).json({ message })
+        }
+        break
       case 'JsonWebTokenError':
         message = []
         if (err.message === 'invalid signature') {

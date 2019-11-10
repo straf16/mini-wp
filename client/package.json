@@ -14,6 +14,7 @@
     "buefy": "^0.8.6",
     "moment": "^2.24.0",
     "vue": "^2.6.10",
+    "vue-google-signin-button": "^1.0.4",
     "vue-hot-reload-api": "^2.3.4",
     "vue-quill-editor": "^3.0.6"
   },

@@ -1,20 +1,36 @@
 <template>
   <div>
+    <Navbar
+      v-show="page === 'login' || page == 'home' || page == 'register'"
+      @change-login="changeLogin"
+      :isLogin="isLogin"
+      :name="name"
+      @go="go"
+    ></Navbar>
+    <div v-show="page === 'login'">
+      <Login @go="go" @change-login="changeLogin"></Login>
+    </div>
+    <div v-show="page === 'register'">
+      <Register @go="go"></Register>
+    </div>
     <div v-show="page == 'home'">
-      <Navbar @go="go"></Navbar>
       <div class="container is-fullhd">
         <div class="columns">
           <div class="column is-2 is-gapless sidebar">
-            <Sidebar></Sidebar>
+            <Sidebar :name="name"></Sidebar>
           </div>
           <div class="column is-10 is-gapless">
-            <Content :articles="articles"></Content>
+            <Content
+              :articles="articles"
+              @delete-item="fetchMyArticle"
+              @select-tag="filterArticlesbyTag"
+            ></Content>
           </div>
         </div>
       </div>
     </div>
     <div v-show="page == 'articleForm'">
-      <CreateArticle @go="go"></CreateArticle>
+      <CreateArticle :name="name" @go="go"></CreateArticle>
     </div>
   </div>
 </template>
@@ -24,12 +40,17 @@ import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import Content from "./components/Content";
 import CreateArticle from "./views/CreateArticle";
+import Login from "./views/Login";
+import Register from "./views/Register";
 import axios from "../config/myaxios";
 
 export default {
   data() {
     return {
-      page: "home",
+      page: "login",
+      isLogin: false,
+      name: "",
+      email: "",
       articles: []
     };
   },
@@ -37,15 +58,47 @@ export default {
     Navbar,
     Sidebar,
     Content,
-    CreateArticle
+    CreateArticle,
+    Login,
+    Register
   },
   methods: {
     go(page) {
       // console.log("di app dapet", page);
-      if (page === "home") {
-        this.fetchMyArticle();
-      }
+      this.fetchMyArticle();
       this.page = page;
+      this.fetchLocalStorage();
+    },
+    changeLogin(value) {
+      this.isLogin = value;
+    },
+    filterArticlesbyTag(tag) {
+      axios({
+        method: "GET",
+        url: "/articles/search-tags",
+        headers: {
+          token: localStorage.getItem("token")
+        },
+        params: {
+          keyword: tag
+        }
+      })
+        .then(({ data }) => {
+          this.articles = data;
+        })
+        .catch(({ response }) => {
+          console.log(response);
+          this.$buefy.notification.open({
+            message:
+              "Sorry, your request could not be processed, please try again later",
+            type: "is-danger",
+            hasIcon: true
+          });
+        });
+    },
+    fetchLocalStorage() {
+      this.name = localStorage.getItem("name");
+      this.email = localStorage.getItem("email");
     },
     fetchMyArticle() {
       const loading = this.$buefy.loading.open();
@@ -53,19 +106,31 @@ export default {
         method: "GET",
         url: "/articles/my-articles",
         headers: {
-          token:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZGMxNzUxNDIwOTZmMTE2NzYxZjY0MDciLCJuYW1lIjoiRmFkaWxhaCIsImVtYWlsIjoiZmFkaWxAbWFpbC5jb20iLCJpYXQiOjE1NzI5NjUyMTJ9.Jf3RYh5quLB9oJ-f-AbEEk9cTYN4m-EM7MpLv5rqvss"
+          token: localStorage.getItem("token")
         }
       })
         .then(({ data }) => {
           this.articles = data;
         })
-        .catch(err => console.log(err))
+        .catch(({ response }) => {
+          console.log(response);
+          this.$buefy.notification.open({
+            message:
+              "Sorry, your request could not be processed, please try again later",
+            type: "is-danger",
+            hasIcon: true
+          });
+        })
         .finally(() => loading.close());
     }
   },
   created() {
-    this.fetchMyArticle();
+    if (localStorage.getItem("token")) {
+      this.page = "home";
+      this.isLogin = true;
+      this.fetchMyArticle();
+      this.fetchLocalStorage();
+    }
   }
 };
 </script>

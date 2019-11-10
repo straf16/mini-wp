@@ -70,7 +70,8 @@ class ArticleController {
   static searchByTag(req, res, next) {
     article
       .find({
-        tags: new RegExp(`${req.query.keyword}`, 'gi')
+        tags: new RegExp(`${req.query.keyword}`, 'gi'),
+        owner: req.loggedUser._id
       })
       .then(result => {
         res.status(200).json(result)
