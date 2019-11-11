@@ -8,7 +8,7 @@
             <div class="card">
               <div class="card-content">
                 <section>
-                  <form style="margin: 15px 0; text-align: left;" @submit="login">
+                  <form style="margin: 15px 0; text-align: left;" @submit.prevent="login">
                     <b-field label="Email Address">
                       <b-input v-model="email" type="email"></b-input>
                     </b-field>
@@ -112,7 +112,9 @@ export default {
         }
       })
         .then(({ data }) => {
-          console.log(data);
+          localStorage.setItem("email", data.email);
+          localStorage.setItem("name", data.name);
+          localStorage.setItem("token", data.token);
           this.email = "";
           this.password = "";
           this.$buefy.notification.open({
@@ -120,6 +122,8 @@ export default {
             type: "is-success",
             hasIcon: true
           });
+          this.go("home");
+          this.changeLogin(true);
         })
         .catch(({ response }) => {
           response.data.message.forEach(error => {

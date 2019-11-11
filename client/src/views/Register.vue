@@ -8,7 +8,7 @@
             <div class="card">
               <div class="card-content">
                 <section>
-                  <form style="margin: 15px 0; text-align: left;" @submit="register">
+                  <form style="margin: 15px 0; text-align: left;" @submit.prevent="register">
                     <b-field label="Full Name">
                       <b-input v-model="name"></b-input>
                     </b-field>
