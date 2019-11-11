@@ -39,7 +39,7 @@
                   <button
                     class="delete is-small"
                     type="button"
-                    @click="deleteDropFile(index)"
+                    @click="deleteDropFile"
                   ></button>
                 </span>
               </div>
@@ -135,7 +135,11 @@ export default {
       formData.append("title", this.title);
       formData.append("content", this.content);
       formData.append("tags", this.tags);
-      formData.append("featured_image", this.featured_image[0]);
+      if (this.featured_image) {
+        formData.append("featured_image", this.featured_image[0]);
+      } else {
+        formData.append("featured_image", "no image");
+      }
       axios({
         method: "POST",
         url: "/articles",
@@ -145,7 +149,10 @@ export default {
         data: formData
       })
         .then(({ data }) => {
-          console.log(data);
+          this.title = "";
+          this.content = "";
+          this.tags = [];
+          this.featured_image = null;
           this.go("home");
           this.$buefy.notification.open({
             message: "Succesfully create article",
@@ -153,8 +160,8 @@ export default {
             hasIcon: true
           });
         })
-        .catch(err => {
-          console.log(err);
+        .catch(({ response }) => {
+          console.log(response);
           this.$buefy.notification.open({
             message: "please upload a picture for article cover",
             type: "is-danger",
@@ -163,8 +170,8 @@ export default {
         })
         .finally(() => loading.close());
     },
-    deleteDropFile(index) {
-      this.featured_image.splice(index, 1);
+    deleteDropFile() {
+      this.featured_image = null;
     }
   }
 };

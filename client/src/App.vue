@@ -65,9 +65,11 @@ export default {
   methods: {
     go(page) {
       // console.log("di app dapet", page);
-      this.fetchMyArticle();
       this.page = page;
-      this.fetchLocalStorage();
+      if (this.isLogin) {
+        this.fetchMyArticle();
+        this.fetchLocalStorage();
+      }
     },
     changeLogin(value) {
       this.isLogin = value;

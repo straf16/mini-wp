@@ -2,12 +2,12 @@ const { article } = require('../models')
 
 class ArticleController {
   static create(req, res, next) {
-    const { title, content, tags, featured_image } = req.body
+    const { title, content, featured_image } = req.body
     article
       .create({
         title,
         content,
-        tags,
+        tags: req.body.tags.split(','),
         featured_image,
         owner: req.loggedUser._id
       })

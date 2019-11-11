@@ -70,12 +70,17 @@ export default {
       this.$emit("change-login", value);
     },
     logout() {
+      this.$buefy.notification.open({
+        message: "Bye",
+        type: "is-success",
+        hasIcon: true
+      });
       localStorage.removeItem("token");
       localStorage.removeItem("email");
       localStorage.removeItem("name");
       localStorage.removeItem("token");
-      this.go("login");
       this.changeLogin(false);
+      this.go("login");
     }
   }
 };
