@@ -87,8 +87,8 @@ export default {
             type: "is-success",
             hasIcon: true
           });
-          this.go("home");
           this.changeLogin(true);
+          this.go("home");
         })
         .catch(({ response }) => {
           response.data.message.forEach(error => {
