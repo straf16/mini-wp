@@ -10,7 +10,20 @@ const userSchema = new Schema(
     email: {
       type: String,
       required: [true, 'Email is required'],
-      unique: true,
+      validate: {
+        validator: function (value) {
+          return new Promise(function (resolve, reject) {
+            User.find({ email: value }, function (err, users) {
+              if (users.length > 0) {
+                resolve(false)
+              } else {
+                resolve(true)
+              }
+            });
+          });
+        },
+        message: props => `Email already exist`
+      },
       match: [
         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
         'Invalid email format'
